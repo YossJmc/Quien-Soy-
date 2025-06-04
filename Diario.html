@@ -1,0 +1,151 @@
+<!-- diario.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Diario</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4b6cb7;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    section {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      margin-top: 1rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 97%;
+      height: 100px;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    button {
+      background-color: #4b6cb7;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 10px;
+      margin: 0.5rem;
+      cursor: pointer;
+    }
+    .diario-entrada {
+      background-color: #f9f9f9;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    .navegacion {
+        text-align: center;
+      margin-top: 2rem;
+    }
+
+    .volver {
+      text-align: center;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Mi Diario Personal 📝</h1>
+</header>
+
+<section>
+    <input type="text" id="autor" placeholder="¿Quién está escribiendo?" style="width:100%; padding:0.8rem; margin-bottom:1rem; border-radius:10px; border:1px solid #ccc;">
+    <textarea id="nota" placeholder="Escribe tu nota de hoy..."></textarea>
+    <button onclick="guardarNota()">Guardar Nota</button>
+  </section>
+  
+  
+
+<section class="navegacion">
+  <button onclick="cambiarSemana(-1)">← Semana anterior</button>
+  <span id="rango-semana"></span>
+  <button onclick="cambiarSemana(1)">Semana siguiente →</button>
+</section>
+
+<section id="entradas">
+  <!-- Aquí se mostrarán las entradas -->
+</section>
+
+<div class="volver">
+  <button onclick="window.location.href='Quien soy.html'">Volver a la página principal</button>
+</div>
+
+<script>
+  let semanaActual = 0;
+
+  function guardarNota() {
+    const autor = document.getElementById("autor").value.trim();
+const nota = document.getElementById("nota").value.trim();
+
+if (!autor || !nota) {
+  alert("Por favor, escribe tu nombre y la nota.");
+  return;
+}
+
+const fecha = new Date().toISOString();
+const entrada = { fecha, autor, texto: nota };
+
+
+    const notasGuardadas = JSON.parse(localStorage.getItem("diario")) || [];
+    notasGuardadas.unshift(entrada);
+    localStorage.setItem("diario", JSON.stringify(notasGuardadas));
+
+    document.getElementById("nota").value = "";
+    mostrarNotas();
+  }
+
+  function cambiarSemana(direccion) {
+    semanaActual += direccion;
+    mostrarNotas();
+  }
+
+  function mostrarNotas() {
+    const contenedor = document.getElementById("entradas");
+    contenedor.innerHTML = "";
+
+    const todas = JSON.parse(localStorage.getItem("diario")) || [];
+    if (todas.length === 0) {
+      contenedor.innerHTML = "<p>No hay notas aún.</p>";
+      return;
+    }
+
+    const inicio = semanaActual * 7;
+    const fin = inicio + 7;
+    const semana = todas.slice(inicio, fin);
+
+    const rangoTexto = `${inicio + 1} a ${Math.min(fin, todas.length)} de ${todas.length} notas`;
+    document.getElementById("rango-semana").textContent = rangoTexto;
+
+    semana.forEach(nota => {
+      const div = document.createElement("div");
+      div.className = "diario-entrada";
+
+      const fechaLocal = new Date(nota.fecha).toLocaleString("es-ES");
+      div.innerHTML = `<strong>${fechaLocal} - ${nota.autor}</strong><p>${nota.texto}</p>`;
+      contenedor.appendChild(div);
+    });
+  }
+
+  window.onload = mostrarNotas;
+</script>
+
+</body>
+</html>
